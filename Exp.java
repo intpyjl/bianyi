@@ -166,10 +166,10 @@ class LVal extends Element{
         int level1= -1;
         int level2 = -1;
         if(one_word.getType()==Word.IDENFR){
-            if(ifConst&&One_word.words.get(one_word.c).getValueType()!=ValueType.Const){
+            if(ifConst&&ExeStack.getWord(one_word.c)!=ValueType.Const){
                 Printer.print("Not const");
                 return -1;
-            }else if(ifConst)wordValue = ConstTable.getValue(one_word.c);
+            }else if(ExeStack.getWord(one_word.c)==ValueType.Const)wordValue = ConstTable.getValue(one_word.c);
             one_word.print();
             index++;
         }else {
@@ -184,21 +184,43 @@ class LVal extends Element{
             rankList.add(Word.RBRACK);
             tmpindex=hasRank(rankList,arrayList.subList(index, arrayList.size()),ifConst);
             if(tmpindex<0)return -1;
-            if(!ifConst){
-                if(element.topObject.contains("[")){
-                    element.topObject = TempResult.handleTempResult(element.topObject);
-                }
-                super.topObject = super.topObject+"["+element.topObject+"]";
-            }
-            else {
+            if(ifConst){
                 if(level1<0)level1=Integer.parseInt(element.topObject);
                 else level2=Integer.parseInt(element.topObject);
             }
+            else {
+                if(TempResult.isNum(element.topObject)) {
+                    if(level1<0){
+                        level1 = TempResult.getRealNum(element.topObject);
+                        super.topObject = super.topObject+"["+level1+"]";
+                    }
+                    else {
+                        level2 = TempResult.getRealNum(element.topObject);
+                        super.topObject = super.topObject+"["+level2+"]";
+                    }
+                }else {
+                    if(element.topObject.contains("[")){//非常量，且数组
+                        element.topObject = TempResult.handleTempResult(element.topObject);
+                    }
+                    super.topObject = super.topObject+"["+element.topObject+"]";
+                }
+            }
             index+=tmpindex;
-        }if(ifConst){
+        }
+        if(ifConst){
             if(level1<0)topObject=wordValue.intValue+"";
             else if(level2>=0)topObject=wordValue.arrayValues[wordValue.level2*level1+level2]+"";
             else topObject = wordValue.arrayValues[level1]+"";
+        }else {
+            if(wordValue!=null) {
+                if(wordValue.level1<=0) {
+                    topObject=wordValue.intValue+"";
+                }else if(wordValue.level2>=0 && level2>=0) {
+                    topObject = wordValue.arrayValues[wordValue.level2*level1+level2]+"";
+                }else if(level1>=0) {
+                    topObject = wordValue.arrayValues[level1]+"";
+                }
+            }
         }
         Printer.print("<LVal>");
         return index;

@@ -46,8 +46,21 @@ enum Word {
     RETURNTK, PLUS, MINU, VOIDTK, MULT, DIV, MOD, LSS, LEQ, GRE, GEQ, EQL, NEQ,
     COMMA, LPARENT, RPARENT, LBRACK, RBRACK, LBRACE, RBRACE, ASSIGN, SEMICN
 }
-class ConstTable{
+class ExeStack {
     static int number=-1;
+    static List<One_word> wordStack = new LinkedList<One_word>();
+    static List<String> charStack = new LinkedList<String>();
+    public static ValueType getWord(String c) {
+        int index = charStack.lastIndexOf(c);
+        if(index<0)return null;
+        else return wordStack.get(index).getValueType();
+    }
+    public static void free(int index){
+        charStack  = charStack.subList(0,index+1);
+        wordStack = wordStack.subList(0,index+1);
+    }
+}
+class ConstTable{
     static List<String> charStack = new LinkedList<String>();
     static List<WordValue> valueList = new LinkedList<WordValue>();
     public static void free(int index){
@@ -58,7 +71,6 @@ class ConstTable{
         charStack.add(name);
         valueList.add(new WordValue(Integer.parseInt(value)));
         Printer.intoMid("const int "+name+"="+value);
-        number++;
     }
 
     public static WordValue getValue(String name){

@@ -127,9 +127,11 @@ public class CompUnit{
 }
 class Block extends Element{
     int constIndex;
+    int allIndex;
     @Override
     public int checkSimilar(List<One_word> arrayList) {
         Printer.intoMid("BlockBegin ");
+        allIndex = ExeStack.charStack.size()-1;
         constIndex = ConstTable.charStack.size()-1;//不包含
         int index = 0;
         int tmpindex=0;
@@ -155,6 +157,7 @@ class Block extends Element{
         one_word.print();
         Printer.print("<Block>");
         Printer.intoMid("BlockEnd ");
+        ExeStack.free(allIndex);
         ConstTable.free(constIndex);
         return index+1;
     }

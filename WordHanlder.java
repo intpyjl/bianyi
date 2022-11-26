@@ -7,7 +7,6 @@ import java.io.IOException;
 class One_word{
     Word type;
     String c;
-    static Map<String, One_word> words = new HashMap<>();
     ValueType valueType;
     public One_word(){
         super();
@@ -34,10 +33,29 @@ class One_word{
 }
 class TempResult {
     static int index = 0;
-    static public String handleTempResult(String num) {
+    static public String handleTempResult(String num) {//数组元素
         String topString = getNewTemp();
         Printer.intoMid(topString+"="+num);
         return topString;
+    }
+    static String getNum(String num) {
+        try {
+            Integer.parseInt(num);
+            return Integer.parseInt(num)+"";
+        } catch(Exception e) {
+            return num;
+        }
+    }
+    static int getRealNum(String num) {
+        return Integer.parseInt(num);
+    }
+    static boolean isNum(String num) {
+            try {
+                Integer.parseInt(num);
+                return true;
+            } catch(Exception e){
+                return false;
+            }
     }
     static public void handleDef(Word word,String num1,String num2) {
             if(word==Word.CONSTTK) Printer.intoMid("const int "+num1+"="+num2);
@@ -78,34 +96,73 @@ class TempResult {
         Printer.intoMid("var arr int "+ide+"["+level1+"]["+level2+"]");
     }
     static public void handleTempResult(String num1,String num2) {
+        num2 = getNum(num2);
         Printer.intoMid(num1+"="+num2);
     }
     //ConstExp直接计算出结果
     static public String handleTempResult(String num1,String num2,Operation op) {
-        String topString = getNewTemp();
-        if(op == Operation.MUL)
-            Printer.intoMid(topString +"="+num1+"*"+num2);
-        else if(op==Operation.DIV)
-            Printer.intoMid(topString +"="+num1+"/"+num2);
-        else if(op==Operation.ADD)
-            Printer.intoMid(topString +"="+num1+"+"+num2);
-        else if(op==Operation.MINUS)
-            Printer.intoMid(topString +"="+num1+"-"+num2);
-        else if(op==Operation.MOD)
-            Printer.intoMid(topString +"="+num1+"%"+num2);
-        else if(op==Operation.BEQ)
-            Printer.intoMid(topString +"="+num1+"=="+num2);
-        else if(op==Operation.BGE)
-            Printer.intoMid(topString+"="+num1+">="+num2);
-        else if(op==Operation.BGT)
-            Printer.intoMid(topString+"="+num1+">"+num2);
-        else if(op==Operation.BLE)
-            Printer.intoMid(topString+"="+num1+"<="+num2);
-        else if(op==Operation.BLT)
-            Printer.intoMid(topString+"="+num1+"<"+num2);
-        else if(op==Operation.BNE)
-            Printer.intoMid(topString+"="+num1+"!="+num2);
-        return topString;
+        if(isNum(num1)&&isNum(num2)) {
+            if(op == Operation.MUL)
+                return (getRealNum(num1)*getRealNum(num2))+"";
+            else if(op==Operation.DIV)
+                return (getRealNum(num1)/getRealNum(num2))+"";
+            else if(op==Operation.ADD)
+                return (getRealNum(num1)+getRealNum(num2))+"";
+            else if(op==Operation.MINUS)
+                return (getRealNum(num1)-getRealNum(num2))+"";
+            else if(op==Operation.MOD)
+                return (getRealNum(num1)%getRealNum(num2))+"";
+            else if(op==Operation.BEQ){
+                if(getRealNum(num1)==getRealNum(num2))return "1";
+                else return "0";
+            }
+            else if(op==Operation.BGE){
+                if(getRealNum(num1)>=getRealNum(num2))return "1";
+                else return "0";
+            }
+            else if(op==Operation.BGT){
+                if(getRealNum(num1)>getRealNum(num2))return "1";
+                else return "0";
+            }
+            else if(op==Operation.BLE){
+                if(getRealNum(num1)<=getRealNum(num2))return "1";
+                else return "0";
+            }
+            else if(op==Operation.BLT){
+                if(getRealNum(num1)<getRealNum(num2))return "1";
+                else return "0";
+            }
+            else if(op==Operation.BNE){
+                if(getRealNum(num1)!=getRealNum(num2))return "1";
+                else return "0";
+            }
+            return "0";
+        }else {
+            String topString = getNewTemp();
+            if(op == Operation.MUL)
+                Printer.intoMid(topString +"="+num1+"*"+num2);
+            else if(op==Operation.DIV)
+                Printer.intoMid(topString +"="+num1+"/"+num2);
+            else if(op==Operation.ADD)
+                Printer.intoMid(topString +"="+num1+"+"+num2);
+            else if(op==Operation.MINUS)
+                Printer.intoMid(topString +"="+num1+"-"+num2);
+            else if(op==Operation.MOD)
+                Printer.intoMid(topString +"="+num1+"%"+num2);
+            else if(op==Operation.BEQ)
+                Printer.intoMid(topString +"="+num1+"=="+num2);
+            else if(op==Operation.BGE)
+                Printer.intoMid(topString+"="+num1+">="+num2);
+            else if(op==Operation.BGT)
+                Printer.intoMid(topString+"="+num1+">"+num2);
+            else if(op==Operation.BLE)
+                Printer.intoMid(topString+"="+num1+"<="+num2);
+            else if(op==Operation.BLT)
+                Printer.intoMid(topString+"="+num1+"<"+num2);
+            else if(op==Operation.BNE)
+                Printer.intoMid(topString+"="+num1+"!="+num2);
+            return topString;
+        }
     }
 
     static public String getNewTemp() {

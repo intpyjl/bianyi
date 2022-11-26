@@ -22,7 +22,6 @@ public class CreateMIPS {
     }
 
     public void handleCal(String[] formula) {
-
         Operation op=null;
         String cal[];
         String output="";
@@ -49,17 +48,6 @@ public class CreateMIPS {
                 if (cal.length > 1) {
                     op = Operation.DIV;
                     output += "div ";
-                    break;
-                }
-                cal = formula[1].split("-");
-                if (cal.length > 1) {
-                    if(cal[0].length() == 0) {
-                        String number = cal[1];
-                        cal = new String[1];
-                        cal[0] = number;
-                    }
-                    op = Operation.MINUS;
-                    output += "sub ";
                     break;
                 }
                 cal = formula[1].split("%");
@@ -104,6 +92,17 @@ public class CreateMIPS {
                     output += "bne ";
                     break;
                 }
+                cal = formula[1].split("-");
+                if (cal.length > 1) {
+                    if(cal[0].length() == 0) {
+                        String number = cal[1];
+                        cal = new String[1];
+                        cal[0] = number;
+                    }
+                    op = Operation.MINUS;
+                    output += "sub ";
+                    break;
+                }
                 break;
             }
 
@@ -113,8 +112,7 @@ public class CreateMIPS {
         String oReg="$"+oc[0];
         String sReg1="$"+oc[1];
         String sReg2="$"+oc[2];
-        if(cal[0].charAt(0)>='0'&&cal[0].charAt(0)<='9'){
-            Printer.compile("li "+sReg1+", "+cal[0]);
+        if(Register.LoadImme(cal[0],sReg1)){
         } else {
             String p=WordTable.getPosition(cal[0]);
             Printer.compile("lw "+sReg1+", "+p);
@@ -125,8 +123,7 @@ public class CreateMIPS {
         } else if(op==null) {
             Printer.compile("move "+oReg+", "+sReg1);
         }else {
-            if(cal[1].charAt(0)>='0'&&cal[1].charAt(0)<='9'){
-                Printer.compile("li "+sReg2+", "+cal[1]);
+            if(Register.LoadImme(cal[1],sReg2)){
             } else {
                 String p=WordTable.getPosition(cal[1]);
                 Printer.compile("lw "+sReg2+", "+p);
@@ -192,17 +189,6 @@ public class CreateMIPS {
                     output += "div ";
                     break;
                 }
-                cal = formula[1].split("-");
-                if (cal.length > 1) {
-                    if(cal[0].length() == 0) {
-                        String number = cal[1];
-                        cal = new String[1];
-                        cal[0] = number;
-                    }
-                    op = Operation.MINUS;
-                    output += "sub ";
-                    break;
-                }
                 cal = formula[1].split("%");
                 if (cal.length > 1) {
                     op = Operation.MOD;
@@ -245,6 +231,17 @@ public class CreateMIPS {
                     output += "bne ";
                     break;
                 }
+                cal = formula[1].split("-");
+                if (cal.length > 1) {
+                    if(cal[0].length() == 0) {
+                        String number = cal[1];
+                        cal = new String[1];
+                        cal[0] = number;
+                    }
+                    op = Operation.MINUS;
+                    output += "sub ";
+                    break;
+                }
                 break;
             }
 
@@ -253,7 +250,7 @@ public class CreateMIPS {
         String oReg="$"+oc[0];
         String sReg1="$"+oc[1];
         String sReg2="$"+oc[2];
-        if(cal[0].charAt(0)>='0'&&cal[0].charAt(0)<='9'){
+        if(Register.LoadImme(cal[0],sReg1)){
             Printer.compile("li "+sReg1+", "+cal[0]);
         } else {
             String p=WordTable.getPrePosition(cal[0]);
@@ -265,8 +262,8 @@ public class CreateMIPS {
         } else if(op==null) {
             Printer.compile("move "+oReg+", "+sReg1);
         }else {
-            if(cal[1].charAt(0)>='0'&&cal[1].charAt(0)<='9'){
-                Printer.compile("li "+sReg2+", "+cal[1]);
+            if(Register.LoadImme(cal[1],sReg2)){
+
             } else {
                 String p=WordTable.getPrePosition(cal[1]);
                 Printer.compile("lw "+sReg2+", "+p);
@@ -389,8 +386,7 @@ public class CreateMIPS {
                 return ;
             }
             if(strings.length>1) {
-                if(strings[1].charAt(0)>='0'&&strings[1].charAt(0)<='9'){
-                    Printer.compile("li $v1,"+strings[1]);
+                if(Register.LoadImme(strings[1],"$v1")){
                 }else {
                     String p = WordTable.getPosition(strings[1]);
                     Printer.compile("lw " + "$v1," + p);
@@ -489,9 +485,8 @@ public class CreateMIPS {
                 Printer.compile("la $a0,"+ConstStr.getName(content));
                 Printer.compile("syscall");
             }
-            else if(content.charAt(0)>='0'&&content.charAt(0)<='9'){
+            else if(Register.LoadImme(content,"$a0")){
                 Printer.compile("li $v0,1");
-                Printer.compile("li $a0,"+content);
                 Printer.compile("syscall");
             }else {
                 String p = WordTable.getPosition(content);
@@ -506,11 +501,8 @@ public class CreateMIPS {
         }
         else if(strings[0].equals("cmp")){
             String[] number = strings[1].split(",");
-            int number1;
             int o=Register.getTempReg();
-            if(number[0].charAt(0)<='9'&&number[0].charAt(0)>='0'){
-                number1=Integer.parseInt(number[0]);
-                Printer.compile("li $"+o+", "+number1);
+            if(Register.LoadImme(number[0],"$"+o)){
             }else {
                 String p=WordTable.getPosition(number[0]);
                 Printer.compile("lw $"+o+", "+p);
@@ -554,6 +546,8 @@ class WordValue{
     public WordValue(int value){
         super();
         this.intValue=value;
+        this.level1 = 0;
+        this.level2 = 0;
         this.arrayValues=null;
     }
     public WordValue(int level1,String value){
@@ -631,6 +625,23 @@ class Register{
             regs[index] = new Register();
     }
     boolean occupied=false;
+    public static boolean LoadImme(String num,String reg) {
+            try {
+                Integer.parseInt(num);
+                Printer.compile("li "+reg+", "+num);
+                return true;
+            } catch(Exception e){
+                return false;
+            }
+    }
+    public static boolean LoadImme(String num) {
+        try {
+            Integer.parseInt(num);
+            return true;
+        } catch(Exception e){
+            return false;
+        }
+    }
     public static int getTempReg() {
         for(int index=8;index<=15;index++){
             if(!regs[index].occupied){
@@ -708,7 +719,7 @@ class WordTable{
             return "0($"+sReg+")";
         }
         else if(names.length==3){
-            if(names[1].charAt(0)>='0'&&names[1].charAt(0)<='9')
+            if(Register.LoadImme(names[1]))
                 Printer.compile("addi $"+sReg+", $"+sReg+", "+(Integer.parseInt(names[1])*mipsWord.array2*4));
             else {
                 int oReg = Register.getTempReg();
@@ -724,7 +735,7 @@ class WordTable{
                 Register.free(oReg);
                 Register.free(lReg);
             }
-            if(names[2].charAt(0)>='0'&&names[2].charAt(0)<='9')
+            if(Register.LoadImme(names[2]))
                 Printer.compile("addi $"+sReg+", $"+sReg+", "+(Integer.parseInt(names[2])*4));
             else {
                 int oReg = Register.getTempReg();
@@ -739,7 +750,7 @@ class WordTable{
             Register.free(sReg);
             return "0($"+sReg+")";
         }else {
-            if(names[1].charAt(0)>='0'&&names[1].charAt(0)<='9')
+            if(Register.LoadImme(names[1]))
                 Printer.compile("addi $"+sReg+", $"+sReg+", "+(Integer.parseInt(names[1])*mipsWord.array2*4));
             else {
                 int oReg = Register.getTempReg();
@@ -780,7 +791,7 @@ class WordTable{
             return "0($"+sReg+")";
         }
         else if(names.length==3){
-            if(names[1].charAt(0)>='0'&&names[1].charAt(0)<='9')
+            if(Register.LoadImme(names[1]))
                 Printer.compile("addi $"+sReg+", $"+sReg+", "+(Integer.parseInt(names[1])*mipsWord.array2*4));
             else {
                 int oReg = Register.getTempReg();
@@ -795,7 +806,7 @@ class WordTable{
                 Register.free(oReg);
                 Register.free(lReg);
             }
-            if(names[2].charAt(0)>='0'&&names[2].charAt(0)<='9')
+            if(Register.LoadImme(names[2]))
                 Printer.compile("addi $"+sReg+", $"+sReg+", "+(Integer.parseInt(names[2])*4));
             else {
                 int oReg = Register.getTempReg();
@@ -811,7 +822,7 @@ class WordTable{
             Register.free(sReg);
             return "0($"+sReg+")";
         }else {
-            if(names[1].charAt(0)>='0'&&names[1].charAt(0)<='9')
+            if(Register.LoadImme(names[1]))
                 Printer.compile("addi $"+sReg+", $"+sReg+", "+(Integer.parseInt(names[1])*mipsWord.array2*4));
             else {
                 int oReg = Register.getTempReg();
@@ -951,7 +962,7 @@ class FuncParam {
         ifReal = new LinkedList<Boolean>();
     }
     public void addParams(String name) {
-        if(name.charAt(0)>='0'&&name.charAt(0)<='9') {
+        if(Register.LoadImme(name)) {
             intParams.add(Integer.parseInt(name));
             //params.add(null);
             ifReal.add(true);

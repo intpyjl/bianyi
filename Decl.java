@@ -105,8 +105,9 @@ class ConstDef extends Element {
         if(Word.IDENFR == one_word.getType()){
             index++;
             one_word.print();
-            One_word.words.put(one_word.c,one_word);
+            ExeStack.wordStack.add(one_word);
             one_word.setValueType(ValueType.Const);
+            ExeStack.charStack.add(one_word.c);
         }else{
             return -1;
         }
@@ -157,7 +158,8 @@ class VarDef extends Element {
             index++;
             one_word.print();
             one_word.setValueType(ValueType.Var);
-            One_word.words.put(one_word.c,one_word);
+            ExeStack.charStack.add(one_word.c);
+            ExeStack.wordStack.add(one_word);
         }else{
             return -1;
         }

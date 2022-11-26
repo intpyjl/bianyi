@@ -4,8 +4,10 @@ import java.util.List;
 
 //FuncDef需跟VarDecl区分
 class FuncDef extends Element{
+    int allIndex;
     @Override
     public int checkSimilar(List<One_word> arrayList) {
+        allIndex = ExeStack.charStack.size()-1;
         int index = 0;
         int tmpindex=0;
         List rankList = new ArrayList<>();
@@ -57,6 +59,7 @@ class FuncDef extends Element{
         index++;
         Element block = new Block();
         tmpindex = block.checkSimilar(arrayList.subList(index, arrayList.size()));
+        ExeStack.free(allIndex);
         if(tmpindex<0){
             return -1;
         } else {
@@ -96,6 +99,9 @@ class FuncFParam extends Element{
         rankList.add(Word.IDENFR);
         index=hasRank(rankList,arrayList);
         String iden = arrayList.get(index-1).c;
+        ExeStack.charStack.add(iden);
+        ExeStack.wordStack.add(arrayList.get(index-1));
+        arrayList.get(index-1).setValueType(ValueType.Temp);
         if(index<0)return -1;
         int level=0;
         String level2="";
