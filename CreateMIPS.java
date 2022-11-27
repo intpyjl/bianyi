@@ -473,6 +473,9 @@ public class CreateMIPS {
                 Printer.compile("li $v0,5");
                 Printer.compile("syscall");
                 Printer.compile("sw $v0 "+p);
+            }else {
+                Printer.compile("li $v0,5");
+                Printer.compile("syscall");
             }
         }
         //写
@@ -783,8 +786,6 @@ class WordTable{
         if(index<0) return null;
         MIPSWord mipsWord = wordTable.get(index);
         int sReg = Register.getTempReg();
-        if(mipsWord.valueType==ValueType.Temp)
-            System.out.println("这块随机变量的内存被释放了");
         if(names.length==1 && mipsWord.dataStructure==DataStructure.Int){
             Register.free(sReg);
             return mipsWord.startP+mipsWord.position;

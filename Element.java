@@ -225,9 +225,11 @@ public class Element {
                 return -1;
             }
             String object2 = e.topObject;
-            if(!ifConst)
-            object1 = TempResult.handleTempResult(object1,object2,op);
-            else object1=CountConst(object1,object2,op)+"";
+            if(ifConst){
+                object1=CountConst(object1,object2,op)+"";
+            }else {
+                object1 = TempResult.handleTempResult(object1,object2,op);
+            }
             index = index + tmpindex;
             one_word = wordList.get(index);
             Printer.print("<"+name+">");

@@ -10,6 +10,7 @@ public class Modifier {
     static BlockFlag blockFlag = new BlockFlag();
     private static Function nowf=null;
     static boolean isChanged = true;
+    static boolean justLabel = false;
     static int times=-1;
     static int lineNumber=0;
     static List<String> noChange = new LinkedList<String>();
@@ -135,6 +136,8 @@ public class Modifier {
     public static void handleAssign(String[] formula) {
         String cal[]=new String[0];
         String[] ops=new String[]{"\\+","\\*","/","%","<=",">=",">","<","==","!=","-"};
+        int number=0;
+        int brack = 0;
         if(formula.length>1)//意味着等式右边有内容
         {
             int index;
@@ -304,7 +307,8 @@ public class Modifier {
         }
         //标签
         else if(strings[0].charAt(strings[0].length()-1)==':'){
-            //do nothing
+            String label = strings[0].substring(0,strings[0].length()-1);
+            //TODO:label的并查集，可以小幅度减小branch
         }
         else if(strings[0].equals("cmp")){
             String[] number = strings[1].split(",");
@@ -345,4 +349,12 @@ class FlowWord{
         allIndex++;
         return Modifier.wordTable.get(allIndex);
     }
+}
+class LabelGroup{
+    String label;
+    LabelGroup father;
+    List<LabelGroup> labels = new LinkedList<LabelGroup>();
+    static List<LabelGroup> allLabels = new LinkedList<LabelGroup>();
+    static List<String> allChars = new LinkedList<String>();
+    static List<LabelGroup> fatherLabels = new LinkedList<LabelGroup>();
 }

@@ -143,10 +143,18 @@ class TempResult {
                 Printer.intoMid(topString +"="+num1+"*"+num2);
             else if(op==Operation.DIV)
                 Printer.intoMid(topString +"="+num1+"/"+num2);
-            else if(op==Operation.ADD)
-                Printer.intoMid(topString +"="+num1+"+"+num2);
-            else if(op==Operation.MINUS)
-                Printer.intoMid(topString +"="+num1+"-"+num2);
+            else if(op==Operation.ADD){
+                if(num2.charAt(0)=='-')
+                    Printer.intoMid(topString +"="+num1+"-"+num2.substring(1));
+                else
+                    Printer.intoMid(topString +"="+num1+"+"+num2);
+            }
+            else if(op==Operation.MINUS){
+                if(num2.charAt(0)=='-')
+                    Printer.intoMid(topString +"="+num1+"+"+num2.substring(1));
+                else
+                    Printer.intoMid(topString +"="+num1+"-"+num2);
+            }
             else if(op==Operation.MOD)
                 Printer.intoMid(topString +"="+num1+"%"+num2);
             else if(op==Operation.BEQ)

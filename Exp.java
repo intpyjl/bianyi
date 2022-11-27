@@ -307,8 +307,21 @@ class UnaryExp extends Element{
         }
         else if(one_word.getType()==Word.PLUS||one_word.getType()== Word.MINU||one_word.getType()==Word.NOT){
             One_word op = one_word;
-            one_word.print();
-            index++;
+            if(one_word.getType()==Word.PLUS||one_word.getType()==Word.MINU){
+                int minuNumber=0;
+                while(arrayList.get(index).getType()==Word.PLUS||arrayList.get(index).getType()==Word.MINU){
+                    op = arrayList.get(index);
+                    if(op.getType()==Word.MINU)
+                        minuNumber++;
+                    one_word.print();
+                    index++;
+                }
+                if(minuNumber%2==0)op=new One_word(Word.PLUS,"+");
+                else op=new One_word(Word.MINU,"-");
+            }else {
+                one_word.print();
+                index++;
+            }
             Printer.print("<UnaryOp>");
             Element unaryExp = new UnaryExp();
             tmpindex = unaryExp.check(arrayList.subList(index, arrayList.size()),ifConst);
