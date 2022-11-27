@@ -175,8 +175,10 @@ class Printer{
     static boolean firstTime = true;
     static boolean firstMips = true;
     static boolean firstMid = true;
+    static boolean firstMid2 = true;
     static File Mips = new File("mips.txt");
     static File midCode = new File("20373901_余瑾璐_优化前中间代码.txt");
+    static File midCode2 = new File("20373901_余瑾璐_优化后中间代码.txt");
     public static void intoMid(String s) {
         try {
             FileWriter writer;
@@ -194,7 +196,23 @@ class Printer{
             e.printStackTrace();
         }
     }
-
+    public static void intoMid2(String s) {
+        try {
+            FileWriter writer;
+            if(firstMid2){
+                writer = new FileWriter(midCode2);
+                firstMid2 = false;
+            }
+            else {
+                writer = new FileWriter(midCode2, true);
+            }
+            // 有一个tab在
+            writer.write(s+"\n");
+            writer.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
     public static void compile(String s) {
         try {
             FileWriter writer;

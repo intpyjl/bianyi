@@ -9,6 +9,7 @@ public class Compiler {
     {
         String fileName = "testfile.txt";
         String midName = "20373901_余瑾璐_优化前中间代码.txt";
+        String midName2 = "20373901_余瑾璐_优化后中间代码.txt";
         File file = new File(fileName);
 
         try{
@@ -23,9 +24,40 @@ public class Compiler {
         }catch (Exception e){
             System.out.println(e);
         }
-
+        while (Modifier.isChanged){
+            //优化扫描
+            try{
+                FileReader fr = new FileReader(midName);
+                BufferedReader br = new BufferedReader(fr);
+                String line;
+                Modifier.startNewRound();
+                while((line = br.readLine()) != null){
+                    //处理注释
+                    Modifier.handle(line);
+                }
+                Function.allFs = new LinkedList<Function>();
+            }catch (Exception e){
+                System.out.println(Modifier.lineNumber);
+                System.out.println(e);
+            }
+        }
         try{
             FileReader fr = new FileReader(midName);
+            BufferedReader br = new BufferedReader(fr);
+            String line;
+            Modifier.startNewRound();
+            while((line = br.readLine()) != null){
+                //处理注释
+                Modifier.deleteTrash(line);
+            }
+            Function.allFs = new LinkedList<Function>();
+        }catch (Exception e){
+            System.out.println(Modifier.lineNumber);
+            System.out.println(e);
+        }
+        Modifier.times=-1;
+        try{
+            FileReader fr = new FileReader(midName2);
             BufferedReader br = new BufferedReader(fr);
             String line;
             Printer.compile(".data");

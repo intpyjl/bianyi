@@ -118,10 +118,9 @@ public class CreateMIPS {
             Printer.compile("lw "+sReg1+", "+p);
         }
         if(cal.length==1&&op==Operation.MINUS) {
-            Printer.compile("sub "+sReg1+", $0, "+sReg1);
-            Printer.compile("move "+oReg+", "+sReg1);
+            Printer.compile("sub "+oReg+", $0, "+sReg1);
         } else if(op==null) {
-            Printer.compile("move "+oReg+", "+sReg1);
+            oReg = sReg1;
         }else {
             if(Register.LoadImme(cal[1],sReg2)){
             } else {
@@ -251,16 +250,14 @@ public class CreateMIPS {
         String sReg1="$"+oc[1];
         String sReg2="$"+oc[2];
         if(Register.LoadImme(cal[0],sReg1)){
-            Printer.compile("li "+sReg1+", "+cal[0]);
         } else {
             String p=WordTable.getPrePosition(cal[0]);
             Printer.compile("lw "+sReg1+", "+p);
         }
         if(cal.length==1&&op==Operation.MINUS) {
-            Printer.compile("sub "+sReg1+", $0, "+sReg1);
-            Printer.compile("move "+oReg+", "+sReg1);
+            Printer.compile("sub "+oReg+", $0, "+sReg1);
         } else if(op==null) {
-            Printer.compile("move "+oReg+", "+sReg1);
+            oReg = sReg1;
         }else {
             if(Register.LoadImme(cal[1],sReg2)){
 
@@ -471,10 +468,12 @@ public class CreateMIPS {
         }
         //读
         else if(strings[0].equals("read")){
-            String p = WordTable.getPosition(strings[1]);
-            Printer.compile("li $v0,5");
-            Printer.compile("syscall");
-            Printer.compile("sw $v0 "+p);
+            if(WordTable.exist(strings[1])){
+                String p = WordTable.getPosition(strings[1]);
+                Printer.compile("li $v0,5");
+                Printer.compile("syscall");
+                Printer.compile("sw $v0 "+p);
+            }
         }
         //写
         else if(strings[0].equals("print")) {
@@ -618,6 +617,7 @@ class MIPSWord {
     }
 }
 class Register{
+    //TODO:寄存器分配优化
     static Register regs[];
     static {
         regs = new Register[32];
@@ -665,23 +665,28 @@ class Register{
 }
 class BlockFlag{
     int tableStart=0;
-    int tempNumber=0;
     private BlockFlag father;
     public BlockFlag(){
         father = null;
-        //this.tempNumber = 0;
         this.tableStart = 0;
     }
     public BlockFlag(BlockFlag b){
         this.father = b;
-        //this.tempNumber = WordTable.temp;
-        this.tableStart = WordTable.wordTable.size();
+        if(Modifier.times>=0)
+            this.tableStart = Modifier.charStack.size();
+        else
+            this.tableStart = WordTable.wordTable.size();
 
     }
     public BlockFlag free(){
-       // WordTable.temp = tempNumber;//不能，因为调用关系
-        WordTable.wordTable = WordTable.wordTable.subList(0,tableStart);
-        WordTable.charStack = WordTable.charStack.subList(0,tableStart);
+        if(Modifier.times>=0){
+            Modifier.wordStack = Modifier.wordStack.subList(0,tableStart);
+            Modifier.charStack = Modifier.charStack.subList(0,tableStart);
+        }else {
+            WordTable.wordTable = WordTable.wordTable.subList(0,tableStart);
+            WordTable.charStack = WordTable.charStack.subList(0,tableStart);
+        }
+
         return this.father;
     }
 }
@@ -1166,6 +1171,9 @@ class Function {
         super();
         allFs.add(this);
         this.name = name;
+        if(Modifier.times>=0)
+            startIndex = Modifier.charStack.size();
+        else
         startIndex = WordTable.wordTable.size();
     }
     public void setReturnType(Word returnType) {
